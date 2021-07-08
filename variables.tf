@@ -67,8 +67,8 @@ variable "default_target_groups_port" {
   description = "Port of default target group"
 }
 
-variable "target_groups_defaults" {
-  description = "Target group health check parameters"
+variable "target_groups" {
+  description = "The list of target groups parameters"
 
   default = {
     "health_check_path"                = "/healthcheck"

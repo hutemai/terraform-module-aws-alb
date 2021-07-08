@@ -38,7 +38,7 @@ output "alb_s3_logs" {
 
 output "alb_dns_name" {
   description = "The DNS name of the load balancer."
-  value       = module.alb.dns_name
+  value       = module.alb.this_lb_dns_name
 }
 
 output "alb_custom_dns_name" {
@@ -75,17 +75,17 @@ output "alb_https_listener_ids" {
 
 output "load_balancer_arn_suffix" {
   description = "ARN suffix of our load balancer - can be used with CloudWatch."
-  value       = module.alb.load_balancer_arn_suffix
+  value       = module.alb.this_lb_arn_suffix
 }
 
 output "load_balancer_id" {
   description = "The ID and ARN of the load balancer we created."
-  value       = module.alb.load_balancer_id
+  value       = module.alb.this_lb_id
 }
 
 output "load_balancer_zone_id" {
   description = "The zone_id of the load balancer to assist with creating DNS records."
-  value       = module.alb.load_balancer_zone_id
+  value       = module.alb.this_lb_zone_id
 }
 
 output "target_group_arn_suffixes" {

@@ -113,10 +113,10 @@ data "aws_iam_server_certificate" "ss_cert" {
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "4.2.0"
+  version = "5.8.0"
 
-  load_balancer_name        = "${var.project}-${var.environment}"
-  load_balancer_is_internal = var.default_load_balancer_is_internal
+  name        = "${var.project}-${var.environment}"
+  internal    = var.default_load_balancer_is_internal
   security_groups = [element(
     concat(
       aws_security_group.allow_in80_in443_outALL.*.id,
@@ -140,7 +140,6 @@ module "alb" {
       "port" = var.default_https_tcp_listeners_port
     },
   ]
-  https_listeners_count = var.default_https_tcp_listeners_count
 
   http_tcp_listeners = [
     {
@@ -148,22 +147,15 @@ module "alb" {
       "protocol" = "HTTP"
     },
   ]
-  http_tcp_listeners_count = var.default_http_tcp_listeners_count
 
-  target_groups = [
-    {
-      "name"             = "${var.project}-${var.environment}"
-      "backend_protocol" = var.default_target_groups_backend_protocol
-      "backend_port"     = var.default_target_groups_port
-    },
-  ]
-  target_groups_count = var.default_target_groups_count
+  target_groups = var.target_groups
 
-  logging_enabled = var.enable_logging
-  log_bucket_name = element(concat(aws_s3_bucket.alb-logs.*.id, [""]), 0)
+  access_logs = {
+    enabled = var.enable_logging
+    bucket  = element(concat(aws_s3_bucket.alb-logs.*.id, [""]), 0)
+  }
+
   tags            = merge(local.default_tags, var.tags)
-
-  target_groups_defaults = var.target_groups_defaults
 }
 
 data "aws_route53_zone" "alb" {
@@ -177,8 +169,8 @@ resource "aws_route53_record" "alb" {
   type    = "A"
 
   alias {
-    name                   = module.alb.dns_name
-    zone_id                = module.alb.load_balancer_zone_id
+    name                   = module.alb.this_lb_dns_name
+    zone_id                = module.alb.this_lb_zone_id
     evaluate_target_health = true
   }
 
@@ -193,8 +185,8 @@ resource "aws_route53_record" "alb-subdomain" {
   type    = "A"
 
   alias {
-    name                   = module.alb.dns_name
-    zone_id                = module.alb.load_balancer_zone_id
+    name                   = module.alb.this_lb_dns_name
+    zone_id                = module.alb.this_lb_zone_id
     evaluate_target_health = true
   }
 }
